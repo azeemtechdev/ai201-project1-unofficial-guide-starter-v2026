@@ -1,57 +1,24 @@
 # The Unofficial Guide
 
-<!-- Replace this line with your name and which corpus you picked. -->
-
-> **This file is your submission.** Fill it in as you go — most sections get
-> written during the milestone that produces them, not at the end.
->
-> How the starter works, and every command you'll need, is in `RUNNING.md`.
-> Leave that file alone.
->
-> **Paste everything as text.** No screenshots, no video. A typed table gets
-> full credit; a picture of the same table gets none.
->
-> Delete these instruction blocks as you replace them. The `<!-- -->` comments
-> are notes to you and don't show up when the page renders — you can leave them
-> or remove them.
-
+**By Ibrahim Azeem**  
+**Corpus: `advice_threads`**
 ---
 
 # Unit 1
 
 ## What This Does
 
-<!-- Three or four sentences. Which corpus you picked, and the kinds of
-     questions your system answers. Write it for someone who has never seen
-     this repo.
-
-     Milestone 5. -->
+This project is a Retrieval-Augmented Generation (RAG) system built to answer questions using the advice_threads corpus, a collection of forum style college advice posts. It takes user questions about campus life, such as laptop requirements, club leadership, and roommate conflicts and retrieves the most relevant forum replies. The system uses a strict relevance gate to block out of scope questions and grounds its answers exclusively in the provided text, ensuring every response includes a specific document citation.
 
 ## Chunking Strategy
 
-**Chunk size:**
-**Overlap:**
+**Chunk size:** Variable (Split by paragraph/reply)
+**Overlap:** 0
 
-<!-- What about YOUR documents made you pick these numbers? Short posts and
-     long sectioned guides don't want the same chunking, and "800 seemed
-     reasonable" earns nothing. Point at something you noticed when you read
-     the documents in Milestone 1.
-
-     If you changed your mind partway through, say so and say why. That's worth
-     more than pretending you got it right first time.
-
-     Milestone 3. -->
+**Why I picked it:** 
+I noticed the `advice_threads` corpus is formatted like a forum with double newlines between every reply. Instead of cutting every 800 characters and breaking sentences in half, I split the text on double newlines (`\n\n`) so that every chunk is exactly one complete, readable forum post.
 
 ## Sample Chunks
-
-<!-- Five chunks, pasted as text. Label each one and name the file it came from
-     AND the function that produced it — the grader checks your code against
-     what you claim here.
-
-     `python app.py chunks -n 5` prints all three for you. Copy them straight
-     across.
-
-     Milestone 3. -->
 
 **Chunk 1** — source: `thread_bike_commute.txt#0` — produced by: `chunker.py::split_documents`
 
@@ -88,15 +55,13 @@ Write down specifics before the meeting. 'It's not working' is hard to act on; '
 
 ## Sample Answer
 
-<!-- One complete question and answer, pasted as text, with the source line
-     visible. Milestone 4. -->
-
-**Question: how many gb ram should my laptop be for cs course?**
+**Question:**
+how many gb ram should my laptop be for cs course?
 
 **Answer:**
 
 ```
- (best distance 0.249, cutoff 0.6)
+(best distance 0.249, cutoff 0.6)
 
 According to the provided documents, your laptop should have 16GB of RAM for CS courses (thread_laptop_specs.txt).
 
@@ -106,16 +71,7 @@ Sources retrieved: thread_first_year_regret.txt, thread_laptop_specs.txt, thread
 ```
 
 **My relevance cutoff:**
-
-<!-- The number you set in config.py, and how you got there.
-
-     You ran five questions your corpus covers and the five in OUT_OF_SCOPE
-     that it clearly doesn't, and wrote down the best distance for each. What
-     did those two groups look like? Where was the gap? Put the actual numbers
-     here — the table below wants all ten rows.
-
-     Milestone 4. -->
-My relevance cutoff: 0.6
+0.6
 
 Why I picked it:
 "My highest valid question scored a 0.414, and my lowest out-of-scope question scored a 0.721. I set my cutoff at 0.6 because it sits comfortably in that gap. It is high enough to let all valid questions pass without falsely rejecting them, but strict enough to block completely unrelated questions."
@@ -136,18 +92,11 @@ Why I picked it:
 
 ## How I Used AI
 
-<!-- Two specific moments. For each: what you asked for, what came back, and
-     what you changed about it.
-
-     "I asked Claude to write the chunking function from my notes. It ignored
-     the overlap, so I added that myself" is the level of detail we're after.
-     "I used AI to help me code" is not.
-
-     Milestone 5. -->
-
 **1.**
+I used an AI assistant to help me refine my acceptance criteria in Milestone 2. I initially wrote "the answer are generated from the right sources" for Criterion 5 without a number. The AI pointed out this was missing a measurable target, so I updated it to "For at least 4 out of 5 test questions, the final answer is generated using the correct source document" so it could actually be graded.
 
 **2.**
+I asked the AI to help me build a custom chunker in Milestone 3 for the advice_threads corpus. I shared the starter code, and it suggested using Python's .split('\n\n') method instead of an arbitrary character count because my corpus is formatted like a forum. It provided the code structure, and I implemented and tested it to verify it cleanly sliced the documents into 98 standalone thoughts.
 
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never
