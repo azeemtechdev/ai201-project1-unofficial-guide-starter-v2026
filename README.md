@@ -91,11 +91,18 @@ Write down specifics before the meeting. 'It's not working' is hard to act on; '
 <!-- One complete question and answer, pasted as text, with the source line
      visible. Milestone 4. -->
 
-**Question:**
+**Question: how many gb ram should my laptop be for cs course?**
 
 **Answer:**
 
 ```
+ (best distance 0.249, cutoff 0.6)
+
+According to the provided documents, your laptop should have 16GB of RAM for CS courses (thread_laptop_specs.txt).
+
+Sources retrieved: thread_first_year_regret.txt, thread_laptop_specs.txt, thread_pass_fail.txt
+
+1 model calls this session, 392 tokens (364 in, 28 out)
 ```
 
 **My relevance cutoff:**
@@ -108,10 +115,24 @@ Write down specifics before the meeting. 'It's not working' is hard to act on; '
      here — the table below wants all ten rows.
 
      Milestone 4. -->
+My relevance cutoff: 0.6
+
+Why I picked it:
+"My highest valid question scored a 0.414, and my lowest out-of-scope question scored a 0.721. I set my cutoff at 0.6 because it sits comfortably in that gap. It is high enough to let all valid questions pass without falsely rejecting them, but strict enough to block completely unrelated questions."
 
 | Question | In corpus? | Best distance |
 |---|---|---|
-|  |  |  |
+|is it advised to join more than 1 or 2 clubs...|Yes|0.414|
+|how many gb ram should my laptop be for cs course?|Yes|0.249
+|how many hours does it take for a professor to answer email?|Yes|0.339
+|how do i aproach my ra for room changes?|Yes|0.389
+|apart from the library, is there a silent place one can study...|Yes|0.353
+|What is the capital of Mongolia?|No|0.878
+|How do I change the oil in a diesel engine?|No|0.721
+|Who won the 1994 World Cup?|No|0.885
+|What is the recommended dosage of ibuprofen for a headache?|No|0.782
+|How do I write a for loop in Rust?|No|0.816
+
 
 ## How I Used AI
 

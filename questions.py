@@ -27,7 +27,7 @@ QUESTIONS = [
     {"question": "how many gb ram should my laptop be for cs course?", "expects": "16gb"},
     {"question": "how many hours does it take for a professor to answer email?", "expects": "48 hours"},
     {"question": "how do i aproach my ra for room changes?", "expects": "help"},
-    {"question": "apart from the library, is there a silent place one can study and have a good coffe", "expects": "science building"},
+    {"question": "apart from the library, is there a silent place one can study", "expects": "science building"},
 ]
 
 # Questions from a different world entirely. Your gate should refuse all five.
