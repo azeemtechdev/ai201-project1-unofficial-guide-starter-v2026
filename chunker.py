@@ -82,22 +82,32 @@ def fallback_split(
 
 def split_documents(documents: list[Document]) -> list[Chunk]:
     """
-    Split documents into chunks. ⚠️ REPLACE THE BODY OF THIS IN MILESTONE 3.
-
-    Right now it just calls the fallback. That is the plain, generic behaviour
-    the brief is talking about.
-
-    When you write your own strategy, set `produced_by` to
-    "chunker.py::split_documents" so your README's Sample Chunks section names
-    the right function. `app.py chunks` prints that string for you.
-
-    Things worth thinking about before you write any code:
-      - Are your documents short posts or long guides?
-      - Is the useful information in one sentence, or spread over a paragraph?
-      - Would splitting on paragraph breaks keep more thoughts intact than
-        splitting on a character count?
+    Splits documents naturally along paragraph/reply breaks (double newlines)
+    to ensure context is never cut in half.
     """
-    return fallback_split(documents)
+    chunks: list[Chunk] = []
+    
+    for doc in documents:
+        # Split the text by double newlines (paragraph/reply breaks)
+        raw_pieces = doc.text.split("\n\n")
+        
+        index = 0
+        for piece in raw_pieces:
+            clean_piece = piece.strip()
+            
+            # Only save it if it actually contains text (ignores empty spaces)
+            if clean_piece:
+                chunks.append(
+                    Chunk(
+                        text=clean_piece,
+                        source=doc.source,
+                        index=index,
+                        produced_by="chunker.py::split_documents",
+                    )
+                )
+                index += 1
+                
+    return chunks
 
 
 def describe(chunks: list[Chunk]) -> str:
