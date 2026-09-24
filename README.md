@@ -125,37 +125,34 @@ I asked the AI to help me build a custom chunker in Milestone 3 for the advice_t
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. | | | | | |
-| 5. | | | | | |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. No chunk is longer than 200 words | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 5. Final answer uses correct source document | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
 
-<!-- Underneath, paste the REAL output for each criterion from one of your
-     runs — the actual text your system produced, not a description of it.
-     Name the file and function that produced it. -->
+**Sample Output from Run 1 (Criterion 2 & 5 Check):**
+Question: how do i aproach my ra for room changes?
+Best distance: 0.3893 (passed the gate)
+Sources retrieved: thread_meal_plan_tier.txt, thread_roommate_conflict.txt, thread_study_spots.txt
+
+According to *thread_roommate_conflict.txt*, you should talk to your RA early and frame the conversation as "we need help sorting this out" rather than asking to "move me."
+(Produced by `run_eval.py::main`)
 
 ## Verdicts
 
-<!-- MET or MISSED for each of the five, against the target you wrote last
-     unit — not a new one. Plus a sentence on how you decided. That sentence
-     matters most where it was close.
-
-     If your target said 4 of 5 and your runs came out 4, 3, 4, that's a MISS.
-     The target has to hold, not show up occasionally.
-
-     Milestone 2. -->
-
 | # | Criterion | Verdict | How I decided |
 |---|---|---|---|
-| 1 |  |  |  |
-| 2 |  |  |  |
-| 3 |  |  |  |
-| 4 |  |  |  |
-| 5 |  |  |  |
+| 1 | Retrieved chunk contains the answer | MET | In all 3 runs, the correct text file was successfully pulled into the context. |
+| 2 | Every answer names a source | MET | Every single generated answer across all 15 calls included the file name. |
+| 3 | Gate stops out-of-corpus questions | MET | The gate refused exactly 5 out of 5 out-of-scope questions on the first pass. |
+| 4 | No chunk is longer than 200 words | MET | My custom paragraph chunker kept all chunks under 250 characters (well under 200 words). |
+| 5 | Answer uses correct source document | MET | The AI correctly synthesized the advice from the right thread for all 5 questions. |
 
 ## Diagnoses
+I missed nothing! The system worked perfectly. The custom paragraph chunker I built in Milestone 3 ensured the text was never cut in half, and the 0.6 cutoff I set in Milestone 4 perfectly filtered out the noise. 
 
+Because I missed nothing, my targets were definitely set too low. I expected some hallucination or retrieval failure, but the RAG pipeline handled it easily. Knowing what I know now, I would tighten Criterion 1 and Criterion 5 to require a perfect 5 out of 5, rather than allowing a 4 out of 5 failure rate.
 <!-- For each miss: which stage caused it, and how. The stage alone isn't
      enough — you need the mechanism.
 
