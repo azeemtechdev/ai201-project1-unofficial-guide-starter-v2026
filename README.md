@@ -98,6 +98,8 @@ I used an AI assistant to help me refine my acceptance criteria in Milestone 2. 
 **2.**
 I asked the AI to help me build a custom chunker in Milestone 3 for the advice_threads corpus. I shared the starter code, and it suggested using Python's .split('\n\n') method instead of an arbitrary character count because my corpus is formatted like a forum. It provided the code structure, and I implemented and tested it to verify it cleanly sliced the documents into 98 standalone thoughts.
 
+**3.**
+In Unit 2, I used an AI assistant to help me parse the terminal outputs from my `run_eval.py` script and format the raw data into the Markdown Run Log tables. Because my baseline system scored a perfect 100% and I had no misses to diagnose, I also used the AI as a sounding board to determine a valid "Improvement" to make. The AI suggested stress-testing the system's efficiency by dropping the `top-k` retrieval limit from 5 to 2 to see if my chunking strategy could still deliver perfect accuracy with less than half the context.
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never
      claims earns nothing.
@@ -194,18 +196,11 @@ My system scored a perfect 100% in the baseline test. Because my diagnoses showe
 Yes, it made the system significantly more efficient without sacrificing any accuracy. By lowering the `top-k` to 2, the system sends fewer tokens to the LLM on every call, which saves processing time and costs, while still maintaining a flawless 100% success rate across all 5 criteria.
 
 ## What's Still Broken
+Since my system achieved a perfect 5/5 on all criteria across all three runs (both before and after lowering the `top-k` limit), there are strictly no broken criteria left to fix based on my current tests. 
 
-<!-- For each criterion still missed after your fix: what you'd do about it,
-     and why you stopped where you did.
-
-     "I ran out of time" is fine if it's true. Pretending nothing is left is
-     not.
-
-     Milestone 5. -->
+However, a perfect score usually means the test wasn't hard enough. While the pipeline handles straightforward advice retrieval flawlessly, it hasn't been tested on "multi-hop" questions that require combining advice from two different threads. I stopped here because the system fully met all the standards I originally set in Unit 1, but adding complex synthesis questions would be my next step to find the system's actual breaking point.
 
 ## What I'd Do Differently
+Knowing what I know now, I would rewrite Criterion 1 and Criterion 5 to demand a strict 5 out of 5 target rather than 4 out of 5. I originally set the bar too low out of caution, not realizing how clean the data would be once I built the custom paragraph chunker. 
 
-<!-- Knowing what you know now — which of your five criteria would you write
-     differently, and why?
-
-     Milestone 5. -->
+I would also write a new criterion that tests the system's ability to handle multi-part questions. Right now, all my criteria measure whether the system can find *one* right answer, but a better test would measure if it can synthesize conflicting advice from different chunks.
