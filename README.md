@@ -150,7 +150,7 @@ According to *thread_roommate_conflict.txt*, you should talk to your RA early an
 | 5 | Answer uses correct source document | MET | The AI correctly synthesized the advice from the right thread for all 5 questions. |
 
 ## Diagnoses
-I missed nothing! The system worked perfectly. The custom paragraph chunker I built in Milestone 3 ensured the text was never cut in half, and the 0.6 cutoff I set in Milestone 4 perfectly filtered out the noise. 
+I missed nothing! The system worked perfectly. The custom paragraph chunker I built in Milestone 3 ensured the text was never cut in half, and the 0.6 cutoff I set perfectly filtered out the noise. 
 
 Because I missed nothing, my targets were definitely set too low. I expected some hallucination or retrieval failure, but the RAG pipeline handled it easily. Knowing what I know now, I would tighten Criterion 1 and Criterion 5 to require a perfect 5 out of 5, rather than allowing a 4 out of 5 failure rate.
 <!-- For each miss: which stage caused it, and how. The stage alone isn't
