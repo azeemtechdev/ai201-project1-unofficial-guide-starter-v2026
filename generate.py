@@ -195,7 +195,14 @@ def _get_client():
                 "Copy .env.example to .env and paste your key in, then try "
                 "again. `python test.py` will confirm it's working."
             )
-        _client = genai.Client(api_key=key)
+        from google.genai import types
+
+        _client = genai.Client(
+            api_key=key,
+            http_options=types.HttpOptions(
+                timeout=int(config.REQUEST_TIMEOUT_S * 1000)  # milliseconds
+            ),
+        )
     return _client
 
 
@@ -230,6 +237,10 @@ def generate(prompt: str, system: str | None = None, cache: bool = True) -> str:
     for attempt in range(config.MAX_RETRIES):
         _wait_for_slot()
         try:
+            if config.FAULT == "timeout":
+                raise TimeoutError("injected timeout (AI201_FAULT=timeout)")
+            if config.FAULT == "error":
+                raise RuntimeError("injected API failure (AI201_FAULT=error)")
             client = _get_client()
             _call_times.append(time.monotonic())
             _session_calls += 1
@@ -241,6 +252,8 @@ def generate(prompt: str, system: str | None = None, cache: bool = True) -> str:
             response = client.models.generate_content(**kwargs)
             _record_tokens(response)
             text = (response.text or "").strip()
+            if config.FAULT == "empty":
+                text = ""
 
             if use_cache:
                 _cache_write(key, text)

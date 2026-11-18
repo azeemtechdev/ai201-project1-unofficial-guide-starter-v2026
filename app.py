@@ -175,7 +175,7 @@ def cmd_retrieve(args):
     print("between the two groups. Your cutoff goes in that gap.")
 
 
-def ask_pipeline(
+def _ask_pipeline_core(
     question,
     corpus=None,
     variant="default",
@@ -236,6 +236,119 @@ def ask_pipeline(
     return outcome
 
 
+FRIENDLY = {
+    "empty_question": "Please type a question.",
+    "question_too_long": "That question is too long. Please keep it under {n} characters.",
+    "index_missing": "The search index is missing. Run `python app.py index` first.",
+    "timeout": "The answer service took too long to respond. Please try again.",
+    "empty_answer": "The answer service returned nothing. Please try again.",
+    "quota_guard": "This session hit its request budget. Stop and check for a runaway loop.",
+    "generation_failed": "Something went wrong while answering. Please try again.",
+}
+
+
+def _classify(exc) -> str:
+    text = f"{type(exc).__name__} {exc}".lower()
+    if "no index" in text:
+        return "index_missing"
+    if "timeout" in text or "timed out" in text or "deadline" in text:
+        return "timeout"
+    if type(exc).__name__ == "QuotaGuard":
+        return "quota_guard"
+    return "generation_failed"
+
+
+def ask_pipeline(
+    question,
+    corpus=None,
+    variant="default",
+    top_k=None,
+    threshold=None,
+    on_gate=None,
+    on_prompt=None,
+):
+    """Retrieve, gate, answer -- and never crash, and always leave a log record.
+
+    Wraps `_ask_pipeline_core` (the original pipeline, unchanged). Adds:
+      * input checks before any work is done
+      * a plain-language outcome instead of an exception when something fails
+      * one structured log line per call, whatever happened
+
+    The outcome dict has the same keys as before plus `status`
+    ("answered" | "refused" | "rejected" | "error") and `error_type`.
+    """
+    import generate as gen
+    import logger
+
+    started = time.perf_counter()
+    tokens_before = gen.token_counts()["total"]
+    seen = {}
+
+    def capture_gate(decision):
+        seen["best_distance"] = decision.best_distance
+        if on_gate is not None:
+            on_gate(decision)
+
+    def finish(outcome, status, error_type=None, detail=None):
+        outcome["status"] = status
+        outcome["error_type"] = error_type
+        logger.log_run(
+            question=question if isinstance(question, str) else repr(question),
+            status=status,
+            answer=outcome.get("answer"),
+            sources=outcome.get("sources", []),
+            best_distance=seen.get("best_distance"),
+            refused=outcome.get("refused", False),
+            error_type=error_type,
+            error_detail=detail,
+            duration_ms=round((time.perf_counter() - started) * 1000),
+            tokens=gen.token_counts()["total"] - tokens_before,
+            corpus=corpus or config.CORPUS,
+            top_k=top_k or config.TOP_K,
+        )
+        return outcome
+
+    base = {
+        "question": question,
+        "refused": False,
+        "best_distance": 1.0,
+        "threshold": threshold if threshold is not None else config.THRESHOLD,
+        "sources": [],
+        "prompt": None,
+    }
+
+    # 1. Bad input never reaches retrieval or the model.
+    clean = question.strip() if isinstance(question, str) else ""
+    if not clean:
+        base["answer"] = FRIENDLY["empty_question"]
+        return finish(base, "rejected", "empty_question")
+    if len(clean) > config.MAX_QUESTION_CHARS:
+        base["answer"] = FRIENDLY["question_too_long"].format(n=config.MAX_QUESTION_CHARS)
+        return finish(base, "rejected", "question_too_long")
+
+    # 2. The real pipeline, with every failure turned into a message.
+    try:
+        outcome = _ask_pipeline_core(
+            clean, corpus=corpus, variant=variant, top_k=top_k,
+            threshold=threshold, on_gate=capture_gate, on_prompt=on_prompt,
+        )
+    except Exception as exc:  # noqa: BLE001
+        kind = _classify(exc)
+        base["answer"] = FRIENDLY[kind]
+        base["best_distance"] = seen.get("best_distance", 1.0)
+        return finish(base, "error", kind, f"{type(exc).__name__}: {exc}")
+
+    if outcome["refused"]:
+        return finish(outcome, "refused")
+
+    # 3. The service answered, but with nothing.
+    if not (outcome.get("answer") or "").strip():
+        outcome["answer"] = FRIENDLY["empty_answer"]
+        return finish(outcome, "error", "empty_answer", "model returned empty text")
+
+    return finish(outcome, "answered")
+
+
 def _ask_one(
     question,
     corpus,
@@ -272,6 +385,10 @@ def _ask_one(
         on_gate=print_distances if show_distances else None,
         on_prompt=print_prompt if show_prompt else None,
     )
+
+    if outcome["status"] in ("rejected", "error"):
+        print(f"\n{outcome['answer']}\n")
+        return outcome["answer"]
 
     if outcome["refused"]:
         print(f"\n{gate.REFUSAL}\n")

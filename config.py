@@ -73,6 +73,17 @@ CACHE_ENABLED = os.getenv("AI201_CACHE", "1") != "0"
 CACHE_DIR = ROOT / ".cache"
 
 
+# ─── Capstone: failure handling and logging ──────────────────────────────────
+
+REQUEST_TIMEOUT_S = 20         # give up on one model call after this long
+MAX_QUESTION_CHARS = 500       # longer questions are rejected before any work
+LOG_PATH = ROOT / "logs" / "runs.jsonl"
+
+# Test-only: force a failure on purpose so the bad path can be tested.
+# AI201_FAULT=timeout | error | empty   (leave unset for normal runs)
+FAULT = os.getenv("AI201_FAULT", "").strip().lower()
+
+
 # ─── Paths ───────────────────────────────────────────────────────────────────
 
 CORPORA_DIR = ROOT / "corpora"
