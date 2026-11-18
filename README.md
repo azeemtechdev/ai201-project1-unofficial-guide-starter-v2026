@@ -204,3 +204,15 @@ However, a perfect score usually means the test wasn't hard enough. While the pi
 Knowing what I know now, I would rewrite Criterion 1 and Criterion 5 to demand a strict 5 out of 5 target rather than 4 out of 5. I originally set the bar too low out of caution, not realizing how clean the data would be once I built the custom paragraph chunker. 
 
 I would also write a new criterion that tests the system's ability to handle multi-part questions. Right now, all my criteria measure whether the system can find *one* right answer, but a better test would measure if it can synthesize conflicting advice from different chunks.
+
+## Capstone
+
+**The Shape**
+
+Shape B, harden against failure. I'm extending my Unofficial Guide system, which scored 5/5 on every criterion last unit but had never been tested on a bad path. I added input checks, a 20-second timeout on the model call, plain-language handling for timeouts, API errors, missing index and empty answers, and structured logging (one JSON line per question in `logs/runs.jsonl`, failures included). It runs locally with logs (Path B), because it loads a local embedding model.
+
+**Out of Scope**
+
+- No new retriever and no changes to chunking or the relevance gate.
+- No web interface or hosting.
+- No retry logic beyond the rate-limit retry the starter already has.

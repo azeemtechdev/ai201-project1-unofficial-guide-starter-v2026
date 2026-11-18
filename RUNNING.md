@@ -255,3 +255,36 @@ units.
 
 `results/` is deliberately **not** in `.gitignore`. Your run logs are evidence
 that the test actually happened, and they're part of what gets graded.
+
+---
+
+## Capstone: running the extended system (Path B, local with logs)
+
+**Environment:** Python 3.11, dependencies pinned in `requirements.txt`, embedding
+model `all-MiniLM-L6-v2` (about 80 MB, downloaded on first run), a Gemini API key in `.env`.
+
+**Start it from a clean checkout:**
+
+```bash
+git clone https://github.com/azeemtechdev/ai201-project1-unofficial-guide-starter-v2026.git
+cd ai201-project1-unofficial-guide-starter-v2026
+python -m venv .venv
+source .venv/Scripts/activate        # Git Bash on Windows; macOS/Linux: source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env                 # then paste your key into .env
+python app.py index
+python app.py ask "how many gb ram should my laptop be for cs course?"
+```
+
+**Every run writes a record** to `logs/runs.jsonl` (timestamp, question, answer,
+status, error type, duration in ms, tokens, best distance). Read it back with
+`python logger.py`.
+
+**Measure cost:** `python measure_cost.py` (10 runs, cache off).
+
+**Trigger a failure on purpose** (cache must be off or a saved answer hides it):
+
+```bash
+AI201_CACHE=0 AI201_FAULT=timeout python app.py ask "how many gb ram should my laptop be for cs course?"
+# other values: error, empty
+```
