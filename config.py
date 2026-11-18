@@ -75,7 +75,7 @@ CACHE_DIR = ROOT / ".cache"
 
 # ─── Capstone: failure handling and logging ──────────────────────────────────
 
-REQUEST_TIMEOUT_S = 20         # give up on one model call after this long
+REQUEST_TIMEOUT_S = float(os.getenv("AI201_TIMEOUT_S", "20"))      # give up on one model call after this long
 MAX_QUESTION_CHARS = 500       # longer questions are rejected before any work
 LOG_PATH = ROOT / "logs" / "runs.jsonl"
 

@@ -68,39 +68,38 @@ I chose 4 out of 5 because the AI might occasionally misinterpret a deeply burie
 
 
 ---
+---
 
-<!-- ─────────────────────────────────────────────────────────────────────────
-     UNIT 2 — read this before you change anything above.
+## Capstone criteria
 
-     If a criterion turns out to be BROKEN rather than merely unmet, you can
-     revise it, and that earns credit. But never delete or edit the original
-     line. Add the revision underneath it, like this:
+Written before any capstone results existed. Criteria 1 to 4 are about the new work (failure handling and logging); criterion 5 guards the original system.
 
-         ## 1. Retrieved chunks contain the answer
+### 1. Failure path
 
-         For at least 4 of my 5 test questions, the retrieved chunks include
-         one that contains the answer.
+For 5 out of 5 runs where a real client timeout is triggered (REQUEST_TIMEOUT_S set to 1 ms for testing, with the cache off), the command-line tool must print a message saying the request took too long (instead of a traceback), and the new row in `logs/runs.jsonl` must have status "error" and error type "timeout".
 
-         **Why this target:** ...
+**Why this target:** I demand 5 out of 5 because unhandled exceptions and messy tracebacks completely break the user experience, leaving a student confused about whether their network dropped or the application itself broke.
 
-         > **Revised in unit 2:** For at least 4 of 5 questions, the top three
-         > results contain the answer.
-         >
-         > **Why revised:** I couldn't judge "the chunks include one that
-         > contains the answer" the same way twice — I scored two questions
-         > differently on Monday than on Wednesday. The new version is
-         > something I can actually check.
+### 2. Logging
 
-     That's a revision because the criterion couldn't be MEASURED.
+If I ask 10 questions in a session and exactly one fails via a forced timeout, exactly 10 new lines must be appended to `logs/runs.jsonl` to record the outcome of every request in that batch.
 
-     Lowering a target because you missed it is not a revision, and it costs
-     you the point:
+**Why this target:** I require exactly 10 new lines because if the system drops the logs for failed requests, it becomes impossible for a developer to debug what went wrong for a student, which is exactly the scenario where logging is needed most.
 
-         ✗ "I said 4 of 5 but got 2 of 5, so 2 of 5 is more realistic."
+### 3. Input checks
 
-     A number you missed stays where it is, gets diagnosed, and gets a fix
-     attempted. That's where the points are.
+When passing 5 invalid inputs directly to the pipeline function (2 consisting only of whitespace and 3 exceeding 500 characters), all 5 must return a validation message and leave a log entry with status "rejected" and 0 tokens used.
 
-     The whole reason the originals stay visible is so someone can see what you
-     said before you knew the answer.
-     ───────────────────────────────────────────────────────────────────────── -->
+**Why this target:** I expect 5 out of 5 because allowing invalid inputs to proceed to the retrieval or LLM step wastes API tokens and backend processing time, and failing to warn the student immediately forces them to wait for an inevitable downstream error.
+
+### 4. Speed
+
+With the cache off, in one continuous session of 11 requests, at least 9 of the 10 warm requests (any request after the first) that successfully generate an answer must have a `duration_ms` under 1900 in the log.
+
+**Why this target:** I chose 9 out of 10 under 1.9 seconds because my baseline runs were 0.8 to 1.7 seconds; a tighter target means a real regression in pipeline efficiency will fail the test, and a student trying to study quickly would notice a sluggish tool.
+
+### 5. Original system still works
+
+For 5 out of 5 of the original test questions, the final answer must still contain the expected phrase from `questions.py`, matched by ignoring case and removing all spaces. The RA question's expected phrase is changed from "help" to "mediation", which appears in `thread_roommate_conflict.txt`.
+
+**Why this target:** I demand 5 out of 5 because adding logging and error handling must not break the core retrieval; if a previously reliable answer suddenly fails, the student loses trust in the tool entirely.
